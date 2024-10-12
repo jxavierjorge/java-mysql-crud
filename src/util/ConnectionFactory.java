@@ -5,36 +5,46 @@
  */
 package util;
 
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  *
  * @author jxavi
  */
 public abstract class ConnectionFactory {
-    
+
+    private ResourceBundle reader = null;
     private Connection conn;
-    private final String URL = "jdbc:mysql://localhost:3306/loja";
-    private final String PASS = "";
-    private final String USER = "root";
 
     public Connection getConn() {
-        try{
-            conn = DriverManager.getConnection(URL,USER, PASS);
-        }catch(SQLException e){
-            System.out.println("Erro: "+e.getMessage());
-            return conn=null;
+        try {
+            reader = ResourceBundle.getBundle("resources/dbconfig");
+            conn = DriverManager.getConnection(
+                    reader.getString("db.url"),
+                    reader.getString("db.username"),
+                    reader.getString("db.password")
+            );
+        } catch (SQLException e) {
+            System.out.println("Erro: " + e.getMessage());
+            return conn = null;
+        } catch (MissingResourceException e) {
+            System.out.println(
+                    "Erro: " + e.getMessage()
+                    + "\nArquivo de Configuração não encontrado"
+            );
         }
         return conn;
     }
-    
-    public void fecharConexao() throws SQLException{
-        if(conn!=null){
+
+    public void fecharConexao() throws SQLException {
+        if (conn != null) {
             conn.close();
         }
     }
-    
-    
+
 }
